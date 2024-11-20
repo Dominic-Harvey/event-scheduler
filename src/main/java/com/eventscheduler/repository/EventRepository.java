@@ -1,4 +1,7 @@
 package com.eventscheduler.repository;
 
-public class EventRepository {
+import com.eventscheduler.model.Event;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface EventRepository extends JpaRepository<Event, Long> {
 }
