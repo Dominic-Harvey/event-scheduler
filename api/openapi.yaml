@@ -2,7 +2,9 @@ openapi: 3.0.0
 info:
   title: Event Scheduler API
   description: REST API for scheduling events, including conflict checks and event retrieval.
-  version: "1.0.0"
+  version: "0.0.1"
+servers:
+  - url: http://localhost:8080
 paths:
   /events:
     get:
@@ -18,7 +20,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Event'
         "500":
-          $ref: '#/components/responses/InternalServerError'
+          $ref: '#/components/schemas/ErrorResponse'
   /events/filter:
     get:
       summary: Retrieve events within a timeframe
@@ -52,9 +54,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ErrorResponse'
         "500":
-          $ref: '#/components/responses/InternalServerError'
+          $ref: '#/components/schemas/ErrorResponse'
   /events/{id}:
     get:
       summary: Retrieve event details by ID
@@ -78,15 +80,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ErrorResponse'
         "404":
           description: Event not found.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ErrorResponse'
         "500":
-          $ref: '#/components/responses/InternalServerError'
+          $ref: '#/components/schemas/ErrorResponse'
     post:
       summary: Create a new event
       description: Creates a new event. Ensures no time conflicts with existing events.
@@ -113,9 +115,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ErrorResponse'
         "500":
-          $ref: '#/components/responses/InternalServerError'
+          $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
     Event:
@@ -166,16 +168,22 @@ components:
           format: date-time
           description: End time of the event, must be after startTime.
           example: "2023-11-21T10:00:00Z"
-    Error:
+    ErrorResponse:
       type: object
-      description: Error message explaining the issue.
       properties:
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-11-21T16:45:09.621+00:00"
+        status:
+          type: integer
+          example: 400
+        error:
+          type: string
+          example: "Bad Request"
         message:
           type: string
-  responses:
-    InternalServerError:
-      description: Internal server error.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
+          example: "Invalid type for parameter 'id'. Expected: Long"
+        path:
+          type: string
+          example: "/event/-1"
