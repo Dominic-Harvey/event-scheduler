@@ -65,9 +65,3 @@ This application uses **Flyway** for database migrations.
 - **EventDto**: Used for data transfer to separate API concerns from database entities.  
 - **Chained Method Structure**: Simplified controller responses for cleaner code.  
 - Overlap detection logic is implemented in the **service layer** to keep controllers lightweight.  
-
----
-
-## **Assumptions**  
-- **Time Zones**: Handled in UTC to avoid complexity.  
-- **Event Conflicts**: Defined by overlapping times, excluding exact start-to-end transitions.  
