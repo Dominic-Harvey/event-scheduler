@@ -173,16 +173,11 @@ components:
         timestamp:
           type: string
           format: date-time
-          example: "2024-11-21T16:45:09.621+00:00"
         status:
           type: integer
-          example: 400
         error:
           type: string
-          example: "Bad Request"
         message:
           type: string
-          example: "Invalid type for parameter 'id'. Expected: Long"
         path:
           type: string
-          example: "/event/-1"
