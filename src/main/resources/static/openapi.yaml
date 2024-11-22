@@ -9,13 +9,14 @@ paths:
   /events:
     get:
       summary: Retrieve all events or filter by time range
-      description: Retrieves a list of all events. Supports optional filtering by a time range using `startTime` and `endTime` query parameters.
+      description: Retrieves a list of all events. Supports optional filtering by a time range using `startTime` and `endTime` query parameters in ISO 8601 format.
       parameters:
         - in: query
           name: startTime
           schema:
             type: string
             format: date-time
+            example: 2023-11-21T10:00:00
           required: false
           description: The start of the time range to filter events.
             Required if `endTime` is provided.
@@ -24,6 +25,7 @@ paths:
           schema:
             type: string
             format: date-time
+            example: 2023-11-21T10:00:00
           required: false
           description: The end of the time range to filter events.
             Required if `startTime` is provided.
@@ -67,8 +69,8 @@ paths:
               example:
                 id: 12345
                 name: "Team Meeting"
-                startTime: "2023-11-21T10:00:00Z"
-                endTime: "2023-11-21T11:00:00Z"
+                startTime: "2023-11-21T10:00:00"
+                endTime: "2023-11-21T11:00:00"
         "400":
           description: Invalid input or overlapping event conflict.
           content:
@@ -139,12 +141,12 @@ components:
           type: string
           format: date-time
           description: Start time of the event (ISO 8601 format).
-          example: "2023-11-21T10:00:00Z"
+          example: "2023-11-21T10:00:00"
         endTime:
           type: string
           format: date-time
           description: End time of the event (ISO 8601 format).
-          example: "2023-11-21T11:00:00Z"
+          example: "2023-11-21T11:00:00"
     EventInput:
       type: object
       required:
@@ -161,12 +163,12 @@ components:
           type: string
           format: date-time
           description: Start time of the event, must be before endTime.
-          example: "2023-11-21T10:00:00Z"
+          example: "2023-11-21T10:00:00"
         endTime:
           type: string
           format: date-time
           description: End time of the event, must be after startTime.
-          example: "2023-11-21T10:00:00Z"
+          example: "2023-11-21T10:00:00"
     ErrorResponse:
       type: object
       properties:
