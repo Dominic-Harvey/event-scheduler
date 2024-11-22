@@ -1,14 +1,12 @@
 package com.eventscheduler.controller;
 
+import com.eventscheduler.dto.EventDto;
 import com.eventscheduler.exception.EventNotFoundException;
-import com.eventscheduler.model.Event;
 import com.eventscheduler.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -23,15 +21,35 @@ public class EventController {
         this.eventService = eventService;
     }
 
+    /**
+     * Get all events
+     * @return List of all events
+     */
     @GetMapping
-    public ResponseEntity<List<Event>> getAllEvents() {
-        return ResponseEntity.ok(eventService.getAllEvents());
+    public ResponseEntity<List<EventDto>> getAllEvents() {
+        return ResponseEntity.ok(eventService.toEventDtoList(eventService.getAllEvents()));
     }
 
+    /**
+     * Get a specific event by ID
+     * @param id of the event to fetch
+     * @return one event by id
+     */
     @GetMapping("/{id}")
-    public ResponseEntity<Event> getEventById(@PathVariable Long id) {
+    public ResponseEntity<EventDto> getEventById(@PathVariable Long id) {
         return eventService.getEventById(id)
+                .map(eventService::toEventDto)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new EventNotFoundException("Event not found with ID: " + id));
+    }
+
+    /**
+     * Create a new event
+     * @param event to create
+     * @return created event
+     */
+    @PostMapping
+    public ResponseEntity<EventDto> createEvent(@RequestBody @Validated EventDto event) {
+        return ResponseEntity.ok(eventService.toEventDto(eventService.createEvent(event)));
     }
 }
