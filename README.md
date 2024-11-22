@@ -17,6 +17,11 @@ A Spring Boot application to manage and schedule events without conflicts.
 
 ---
 
+## API Documentation
+- **Swagger UI**: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+
+---
+
 ## **Database Migration**  
 ### Automatic Migration  
 This application uses **Flyway** for database migrations.  
