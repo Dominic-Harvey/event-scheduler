@@ -23,9 +23,9 @@ public class EventController {
     }
 
     /**
-     * Get all events
+     * Get all events or filter by time range
      *
-     * @return List of all events
+     * @return list of events
      */
     @GetMapping
     public ResponseEntity<List<EventDto>> getEvents(
