@@ -101,7 +101,7 @@ public class EventServiceImpl implements EventService {
                 newEvent.getStartTime(),
                 newEvent.getEndTime()
         );
-
+        log.info(inclusiveEvents.toString());
         // Check each event for actual overlaps
         return inclusiveEvents.stream().anyMatch(existingEvent ->
                 isOverlap(newEvent, existingEvent)
