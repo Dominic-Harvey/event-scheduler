@@ -7,13 +7,16 @@ import com.eventscheduler.model.Event;
 import com.eventscheduler.repository.EventRepository;
 import com.eventscheduler.service.EventService;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
@@ -42,6 +45,14 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public List<Event> getEvents(LocalDateTime startTime, LocalDateTime endTime) {
+        if (startTime != null || endTime != null) {
+            return findEventsInRange(startTime, endTime);
+        }
+        return getAllEvents();
+    }
+
+    @Override
     public Optional<Event> getEventById(Long id) {
         return eventRepository.findById(id);
     }
@@ -62,19 +73,31 @@ public class EventServiceImpl implements EventService {
                 .map(this::toEventDto)
                 .toList();
     }
-    private void validateEventDto(EventDto eventDto) {
-        if (!eventDto.getStartTime().isBefore(eventDto.getEndTime())) {
-            throw new BadRequestException("Start time must be before end time");
-        }
 
+    private List<Event> findEventsInRange(LocalDateTime startTime, LocalDateTime endTime) {
+        validateStartAndEndTime(startTime, endTime);
+        return eventRepository.findEvents(startTime, endTime);
+    }
+
+    private void validateEventDto(EventDto eventDto) {
         if (hasConflict(eventDto)) {
             throw new ConflictException("The event conflicts with an existing event.");
         }
     }
 
+    private void validateStartAndEndTime(LocalDateTime startTime, LocalDateTime endTime) {
+        if (startTime == null || endTime == null) {
+            throw new BadRequestException("Both start time and end time must be provided");
+        }
+
+        if (!startTime.isBefore(endTime)) {
+            throw new BadRequestException("Start time must be before end time");
+        }
+    }
+
     private boolean hasConflict(EventDto newEvent) {
         // Fetch all potentially overlapping events
-        List<Event> inclusiveEvents = eventRepository.findInclusiveEvents(
+        List<Event> inclusiveEvents = findEventsInRange(
                 newEvent.getStartTime(),
                 newEvent.getEndTime()
         );

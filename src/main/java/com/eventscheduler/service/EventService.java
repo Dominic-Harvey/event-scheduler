@@ -4,6 +4,7 @@ import com.eventscheduler.dto.EventDto;
 import com.eventscheduler.model.Event;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,4 +15,5 @@ public interface EventService {
     Optional<Event> getEventById(Long id);
     EventDto toEventDto(Event event);
     List<EventDto> toEventDtoList(List<Event> events);
+    List<Event> getEvents(LocalDateTime startTime, LocalDateTime endTime);
 }

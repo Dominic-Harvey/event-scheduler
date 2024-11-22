@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -23,15 +24,22 @@ public class EventController {
 
     /**
      * Get all events
+     *
      * @return List of all events
      */
     @GetMapping
-    public ResponseEntity<List<EventDto>> getAllEvents() {
-        return ResponseEntity.ok(eventService.toEventDtoList(eventService.getAllEvents()));
+    public ResponseEntity<List<EventDto>> getEvents(
+            @RequestParam(value = "startTime", required = false) LocalDateTime startTime,
+            @RequestParam(value = "endTime", required = false) LocalDateTime endTime) {
+
+        return ResponseEntity.ok(
+                eventService.toEventDtoList(eventService.getEvents(startTime, endTime))
+        );
     }
 
     /**
      * Get a specific event by ID
+     *
      * @param id of the event to fetch
      * @return one event by id
      */
@@ -45,6 +53,7 @@ public class EventController {
 
     /**
      * Create a new event
+     *
      * @param event to create
      * @return created event
      */

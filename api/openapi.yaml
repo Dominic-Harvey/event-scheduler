@@ -8,45 +8,28 @@ servers:
 paths:
   /events:
     get:
-      summary: Retrieve all events
-      description: Retrieves a list of all events.
-      responses:
-        "200":
-          description: A list of all events.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Event'
-        "500":
-          description: An unexpected error occurred.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /events/filter:
-    get:
-      summary: Retrieve events within a timeframe
-      description: Retrieves a list of events occurring between a start and end time inclusively.
+      summary: Retrieve all events or filter by time range
+      description: Retrieves a list of all events. Supports optional filtering by a time range using `startTime` and `endTime` query parameters.
       parameters:
-        - name: startTime
-          in: query
+        - in: query
+          name: startTime
           schema:
             type: string
             format: date-time
-          description: Filter events starting from this time, must be before endTime.
-          example: "2023-11-21T10:00:00Z"
-        - name: endTime
-          in: query
+          required: false
+          description: The start of the time range to filter events.
+            Required if `endTime` is provided.
+        - in: query
+          name: endTime
           schema:
             type: string
             format: date-time
-          description: Filter events ending before this time, must be after startTime.
-          example: "2023-11-21T10:00:00Z"
+          required: false
+          description: The end of the time range to filter events.
+            Required if `startTime` is provided.
       responses:
         "200":
-          description: A list of events within the specified timeframe.
+          description: A list of events (filtered or unfiltered).
           content:
             application/json:
               schema:
@@ -54,7 +37,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Event'
         "400":
-          description: Invalid query parameters.
+          description: Invalid query parameters (e.g., `startTime` is after `endTime`).
           content:
             application/json:
               schema:

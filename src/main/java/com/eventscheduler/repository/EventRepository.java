@@ -10,6 +10,6 @@ import java.util.List;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
     @Query("SELECT e FROM Event e WHERE e.startTime <= :endTime AND e.endTime >= :startTime")
-    List<Event> findInclusiveEvents(@Param("startTime") LocalDateTime startTime,
-                                    @Param("endTime") LocalDateTime endTime);
+    List<Event> findEvents(@Param("startTime") LocalDateTime startTime,
+                           @Param("endTime") LocalDateTime endTime);
 }
