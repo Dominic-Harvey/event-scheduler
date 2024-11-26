@@ -4,10 +4,10 @@ info:
   description: REST API for scheduling events, including conflict checks and event retrieval.
   version: "0.0.1"
 servers:
-  - url: http://localhost:8080
-    description: Local development server
   - url: https://event-scheduler-810112786320.europe-west2.run.app
     description: Production server
+  - url: http://localhost:8080
+    description: Local development server
 paths:
   /events:
     get:

@@ -1,7 +1,6 @@
 package com.eventscheduler.controller;
 
 import com.eventscheduler.dto.EventDto;
-import com.eventscheduler.model.Event;
 import com.eventscheduler.service.EventService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -16,8 +15,7 @@ import java.time.LocalDateTime;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(EventController.class)
 class EventControllerTest {
@@ -39,13 +37,6 @@ class EventControllerTest {
                 .endTime(LocalDateTime.of(2024, 11, 22, 13, 0))
                 .build();
 
-        Event savedEvent = Event.builder()
-                .id(1L)
-                .name(requestEvent.getName())
-                .startTime(requestEvent.getStartTime())
-                .endTime(requestEvent.getEndTime())
-                .build();
-
         EventDto responseEvent = EventDto.builder()
                 .id(1L)
                 .name("New Event")
@@ -53,20 +44,21 @@ class EventControllerTest {
                 .endTime(LocalDateTime.of(2024, 11, 22, 13, 0))
                 .build();
 
-        when(eventService.createEvent(any(EventDto.class))).thenReturn(savedEvent);
-        when(eventService.toEventDto(any(Event.class))).thenReturn(responseEvent);
+        // Mock the EventService to return the response DTO when createEvent is called
+        when(eventService.createEvent(any(EventDto.class))).thenReturn(responseEvent);
 
+        // Perform the POST request and verify the response
         mockMvc.perform(post("/events")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestEvent)))
                 .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("New Event"))
                 .andExpect(jsonPath("$.startTime").value("2024-11-22T12:00:00"))
                 .andExpect(jsonPath("$.endTime").value("2024-11-22T13:00:00"));
 
-        // Verify interactions with the mocked service
+        // Verify that the EventService.createEvent was called once with any EventDto
         verify(eventService, times(1)).createEvent(any(EventDto.class));
-        verify(eventService, times(1)).toEventDto(any(Event.class));
     }
 }

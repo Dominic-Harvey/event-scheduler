@@ -1,109 +1,68 @@
 package com.eventscheduler.service;
 
 import com.eventscheduler.dto.EventDto;
-import com.eventscheduler.exception.BadRequestException;
 import com.eventscheduler.exception.ConflictException;
+import com.eventscheduler.mapper.EventMapper;
 import com.eventscheduler.model.Event;
-import com.eventscheduler.repository.EventRepository;
-import jakarta.transaction.Transactional;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-@Slf4j
 public class EventService {
 
-    private final EventRepository eventRepository;
+    private final EventValidator eventValidator;
+    private final EventConflictService eventConflictService;
+    private final EventMapper eventMapper;
+    private final EventQueryService eventQueryService;
+    private final EventPersistenceService eventPersistenceService;
 
     @Autowired
-    public EventService(EventRepository eventRepository) {
-        this.eventRepository = eventRepository;
+    public EventService(EventValidator eventValidator,
+                        EventConflictService eventConflictService,
+                        EventMapper eventMapper,
+                        EventQueryService eventQueryService,
+                        EventPersistenceService eventPersistenceService) {
+        this.eventValidator = eventValidator;
+        this.eventConflictService = eventConflictService;
+        this.eventMapper = eventMapper;
+        this.eventQueryService = eventQueryService;
+        this.eventPersistenceService = eventPersistenceService;
     }
 
     @Transactional
-    public Event createEvent(EventDto event) {
-        validateEventDto(event);
-
-        return eventRepository.save(Event.builder()
-                .name(event.getName())
-                .startTime(event.getStartTime())
-                .endTime(event.getEndTime())
-                .build()
-        );
-    }
-
-    public List<Event> getAllEvents() {
-        return eventRepository.findAll();
-    }
-
-    public List<Event> getEvents(LocalDateTime startTime, LocalDateTime endTime) {
-        if (startTime != null || endTime != null) {
-            return findEventsInRange(startTime, endTime);
-        }
-        return getAllEvents();
-    }
-
-    public Optional<Event> getEventById(Long id) {
-        return eventRepository.findById(id);
-    }
-
-    public EventDto toEventDto(Event event) {
-        return EventDto.builder()
-                .id(event.getId())
-                .name(event.getName())
-                .startTime(event.getStartTime())
-                .endTime(event.getEndTime())
-                .build();
-    }
-
-    public List<EventDto> toEventDtoList(List<Event> events) {
-        return events.stream()
-                .map(this::toEventDto)
-                .toList();
-    }
-
-    private List<Event> findEventsInRange(LocalDateTime startTime, LocalDateTime endTime) {
-        validateStartAndEndTime(startTime, endTime);
-        return eventRepository.findEvents(startTime, endTime);
-    }
-
-    private void validateEventDto(EventDto eventDto) {
-        if (hasConflict(eventDto)) {
+    public EventDto createEvent(EventDto eventDto) {
+        eventValidator.validateStartAndEndTime(eventDto.getStartTime(), eventDto.getEndTime());
+        if (eventConflictService.hasConflict(eventDto)) {
             throw new ConflictException("The event conflicts with an existing event.");
         }
+
+        Event event = eventMapper.toEntity(eventDto);
+        Event savedEvent = eventPersistenceService.saveEvent(event);
+        return eventMapper.toEventDto(savedEvent);
     }
 
-    private void validateStartAndEndTime(LocalDateTime startTime, LocalDateTime endTime) {
-        if (startTime == null || endTime == null) {
-            throw new BadRequestException("Both start time and end time must be provided");
+    public List<EventDto> getAllEvents() {
+        List<Event> events = eventQueryService.getAllEvents();
+        return eventMapper.toEventDtoList(events);
+    }
+
+    public List<EventDto> getEvents(LocalDateTime startTime, LocalDateTime endTime) {
+        if (startTime != null && endTime != null) {
+            eventValidator.validateStartAndEndTime(startTime, endTime);
+            List<Event> events = eventQueryService.findEventsInRange(startTime, endTime);
+            return eventMapper.toEventDtoList(events);
+        } else {
+            return getAllEvents();
         }
-
-        if (!startTime.isBefore(endTime)) {
-            throw new BadRequestException("Start time must be before end time");
-        }
     }
 
-    private boolean hasConflict(EventDto newEvent) {
-        // Fetch all potentially overlapping events
-        List<Event> inclusiveEvents = findEventsInRange(
-                newEvent.getStartTime(),
-                newEvent.getEndTime()
-        );
-
-        // Check each event for actual overlaps
-        return inclusiveEvents.stream().anyMatch(existingEvent ->
-                isOverlap(newEvent, existingEvent)
-        );
-    }
-
-    private boolean isOverlap(EventDto newEvent, Event existingEvent) {
-        // Check if the new event overlaps with the existing event
-        return (newEvent.getStartTime().isBefore(existingEvent.getEndTime()) &&
-                newEvent.getEndTime().isAfter(existingEvent.getStartTime()));
+    public Optional<EventDto> getEventById(Long id) {
+        Optional<Event> eventOpt = eventQueryService.getEventById(id);
+        return eventOpt.map(eventMapper::toEventDto);
     }
 }

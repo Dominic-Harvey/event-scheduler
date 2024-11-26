@@ -32,8 +32,7 @@ public class EventController {
             @RequestParam(value = "startTime", required = false) LocalDateTime startTime,
             @RequestParam(value = "endTime", required = false) LocalDateTime endTime) {
 
-        return ResponseEntity.ok(
-                eventService.toEventDtoList(eventService.getEvents(startTime, endTime))
+        return ResponseEntity.ok((eventService.getEvents(startTime, endTime))
         );
     }
 
@@ -46,7 +45,6 @@ public class EventController {
     @GetMapping("/{id}")
     public ResponseEntity<EventDto> getEventById(@PathVariable Long id) {
         return eventService.getEventById(id)
-                .map(eventService::toEventDto)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new EventNotFoundException("Event not found with ID: " + id));
     }
@@ -59,6 +57,6 @@ public class EventController {
      */
     @PostMapping
     public ResponseEntity<EventDto> createEvent(@RequestBody @Validated EventDto event) {
-        return ResponseEntity.ok(eventService.toEventDto(eventService.createEvent(event)));
+        return ResponseEntity.ok(eventService.createEvent(event));
     }
 }
