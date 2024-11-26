@@ -4,7 +4,6 @@ import com.eventscheduler.dto.EventDto;
 import com.eventscheduler.model.Event;
 import com.eventscheduler.service.EventService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -25,6 +24,9 @@ class EventControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockBean
     private EventService eventService;
@@ -54,13 +56,9 @@ class EventControllerTest {
         when(eventService.createEvent(any(EventDto.class))).thenReturn(savedEvent);
         when(eventService.toEventDto(any(Event.class))).thenReturn(responseEvent);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.findAndRegisterModules();
-
         mockMvc.perform(post("/events")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestEvent))) // Use configured ObjectMapper here
+                        .content(objectMapper.writeValueAsString(requestEvent)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("New Event"))
