@@ -5,6 +5,9 @@ info:
   version: "0.0.1"
 servers:
   - url: http://localhost:8080
+    description: Local development server
+  - url: https://event-scheduler-810112786320.europe-west2.run.app
+    description: Production server
 paths:
   /events:
     get:
