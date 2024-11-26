@@ -5,7 +5,6 @@ import com.eventscheduler.exception.BadRequestException;
 import com.eventscheduler.exception.ConflictException;
 import com.eventscheduler.model.Event;
 import com.eventscheduler.repository.EventRepository;
-import com.eventscheduler.service.impl.EventServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -27,7 +26,7 @@ class EventServiceImplTest {
     private EventRepository eventRepository;
 
     @InjectMocks
-    private EventServiceImpl eventService;
+    private EventService eventService;
 
     @BeforeEach
     void setUp() {
