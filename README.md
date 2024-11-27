@@ -19,7 +19,7 @@ A Spring Boot application to manage and schedule events without conflicts.
 
 ## API Documentation
 - **Swagger UI**: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
-- **Swagger UI Production**: [[http://localhost:8080/swagger-ui.html](https://event-scheduler-dsqfb2h3ha-nw.a.run.app/swagger-ui/index.html)]([http://localhost:8080/swagger-ui.html](https://event-scheduler-dsqfb2h3ha-nw.a.run.app/swagger-ui/index.html))
+- **Swagger UI Production**: [https://event-scheduler-dsqfb2h3ha-nw.a.run.app/swagger-ui/index.html](https://event-scheduler-dsqfb2h3ha-nw.a.run.app/swagger-ui/index.html)
 ---
 
 ## **Database Migration**  
